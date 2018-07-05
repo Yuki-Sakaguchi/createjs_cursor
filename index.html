@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>creace.jsでcursor追従を簡単に実装できるライブラリ</h1>
+    <canvas id="cursor-canvas" width="960" height="540"></canvas>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="./create.cursor.js"></script>
+    <script>
+        // ポインターの変更
+        $(window).on('load', function() {
+            var cursor = new Cursor({
+                canvasId: 'cursor-canvas',
+                defaultPointer: false,
+
+                // 初期化時の処理
+                callback_init: function(target) {
+                    // ポインターを準備
+                    target.pointer = new createjs.Shape();
+                    target.pointer.graphics.beginFill("0xcccccc");
+                    target.pointer.graphics.drawCircle(0, 0, 10);
+                    target.pointer.alpha = 0.5;
+                    target.pointerScaleDirection = true; // 大きくなる向き
+                    target.stage.addChild(target.pointer);
+                },
+
+                // 更新時の処理
+                callback_update: function(target) {
+                    // ポインターの位置を更新
+                    target.pointer.x = target.oldPoint.x;
+                    target.pointer.y = target.oldPoint.y;
+
+                    // ポインターの大きさを変更
+                    var scalePoint = 1.01;
+                    if (target.pointerScaleDirection) {
+                        target.pointer.scaleX = target.pointer.scaleY *= scalePoint;
+                    } else {
+                        target.pointer.scaleX = target.pointer.scaleY /= scalePoint;
+                    }
+
+                    // 大きくするか小さくするかフラグ
+                    if (target.pointer.scaleX > 1.2) {
+                        target.pointerScaleDirection = false;
+                    } else if (target.pointer.scaleX < 1) {
+                        target.pointerScaleDirection = true;
+                    }
+                },
+            });
+        });
+    </script>
+  </body>
+</html>
